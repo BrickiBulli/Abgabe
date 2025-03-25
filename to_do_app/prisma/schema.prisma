@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String  @id @default(uuid()) // Unique identifier
+  username       String  @unique @db.VarChar(50) // Unique username, max 50 chars
+  password_hash  String  @db.VarChar(255) // Hashed password
+  password_salt  String  @db.VarChar(255) // Salt for password hashing
+  email          String  @unique @db.VarChar(255) // Unique email
+  role           Int     @default(0) // 0: Normal User, 1: Admin
+  tasks          Task[] // One-to-Many Relationship: A user can have multiple tasks
+}
+
+model Task {
+  id          String   @id @default(uuid()) // Unique identifier
+  title       String   @db.VarChar(255) // Task title (max 255 chars)
+  description String?  // Task description (optional)
+  duedate     DateTime // Due date, should not be in the past (validated in code)
+  status      Int      // Task status (e.g., 0 = Pending, 1 = In Progress, 2 = Completed)
+  user_id     String   // Foreign Key referencing the user
+
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade) // User Relationship
+}
