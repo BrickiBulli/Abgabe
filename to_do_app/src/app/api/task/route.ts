@@ -5,12 +5,11 @@ import { requireSession } from "@/lib/session";
 
 // GET: Fetch all tasks
 export async function GET() {
-  console.log("sigma");
-
   try {
-    // Ensure the user has a valid session
-    await requireSession();
-    const tasks = await db.task.findMany();
+    const session = await requireSession();
+    const tasks = await db.task.findMany({
+      where: { user_id: session.user.id },
+    });
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -23,17 +22,11 @@ export async function GET() {
 
 // POST: Create a new task
 export async function POST(request: Request) {
-  console.log("sigma");
-
   try {
     const body = await request.json();
     const { title, description, duedate, status } = body.form;
     const session = await requireSession();
-    console.log(session);
-    console.log(body);
-    console.log("sigma");
     const parsedDate = new Date(duedate);
-    console.log(parsedDate.toISOString());
 
     const newTask = await db.task.create({
       data: {
@@ -46,7 +39,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(newTask, { status: 201 });
   } catch (error) {
-    console.error(error);
     return NextResponse.json({ error: "Error creating task" }, { status: 500 });
   }
 }
