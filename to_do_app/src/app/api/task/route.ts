@@ -1,108 +1,52 @@
-// pages/api/tasks/index.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { db }from '../../../lib/db';
+// /app/api/tasks/route.ts
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { requireSession } from "@/lib/session";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+// GET: Fetch all tasks
+export async function GET() {
+  console.log("sigma");
+
   try {
-    switch (req.method) {
-      /**
-       * CREATE a new task (POST)
-       * Body example:
-       * {
-       *   title: string,
-       *   description?: string,
-       *   duedate: string,        // ISO date
-       *   status: number,
-       *   user_id: string
-       * }
-       */
-      case 'POST': {
-        const { title, description, duedate, status, user_id } = JSON.parse(req.body);
-
-        // Basic validation checks here, if needed
-        if (!title || !duedate || !user_id) {
-          return res.status(400).json({ error: 'Missing required fields' });
-        }
-
-        const newTask = await db.task.create({
-          data: {
-            title,
-            description,
-            duedate: new Date(duedate),
-            status,
-            user_id,
-          },
-        });
-
-        return res.status(201).json(newTask);
-      }
-
-      /**
-       * READ (GET) - optional
-       * For demonstration, we'll return all tasks.
-       * In reality, you might:
-       *   - Only return tasks for a specific user.
-       *   - Or accept a query param to filter by user, etc.
-       */
-      case 'GET': {
-        const tasks = await db.task.findMany();
-        return res.status(200).json(tasks);
-      }
-
-      /**
-       * UPDATE (PUT)
-       * Body example:
-       * {
-       *   id: string,
-       *   title: string,
-       *   description?: string,
-       *   duedate: string,  // ISO date
-       *   status: number
-       * }
-       */
-      case 'PUT': {
-        const { id, title, description, duedate, status } = JSON.parse(req.body);
-
-        if (!id) {
-          return res.status(400).json({ error: 'Task ID is required for updating' });
-        }
-
-        const updatedTask = await db.task.update({
-          where: { id },
-          data: {
-            title,
-            description,
-            duedate: new Date(duedate),
-            status,
-          },
-        });
-
-        return res.status(200).json(updatedTask);
-      }
-
-      /**
-       * DELETE
-       * Body example:
-       * {
-       *   id: string
-       * }
-       */
-      case 'DELETE': {
-        const { id } = JSON.parse(req.body);
-
-        if (!id) {
-          return res.status(400).json({ error: 'Task ID is required for deletion' });
-        }
-
-        await db.task.delete({ where: { id } });
-        return res.status(204).end();
-      }
-
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+    // Ensure the user has a valid session
+    await requireSession();
+    const tasks = await db.task.findMany();
+    return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
-    console.error('Error in /api/tasks:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error(error);
+    return NextResponse.json(
+      { error: "Error fetching tasks" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST: Create a new task
+export async function POST(request: Request) {
+  console.log("sigma");
+
+  try {
+    const body = await request.json();
+    const { title, description, duedate, status } = body.form;
+    const session = await requireSession();
+    console.log(session);
+    console.log(body);
+    console.log("sigma");
+    const parsedDate = new Date(duedate);
+    console.log(parsedDate.toISOString());
+
+    const newTask = await db.task.create({
+      data: {
+        title,
+        description: description,
+        duedate: parsedDate,
+        status,
+        user_id: session.user.id,
+      },
+    });
+    return NextResponse.json(newTask, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Error creating task" }, { status: 500 });
   }
 }

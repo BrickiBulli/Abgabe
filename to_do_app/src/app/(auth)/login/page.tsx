@@ -46,7 +46,7 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         username,
         password,
-        redirect: false, 
+        redirect: false,
       });
 
       if (result?.error) {
@@ -55,8 +55,9 @@ export default function LoginPage() {
       }
 
       setSuccessMsg("Login successful!");
-      router.push("/admin"); 
+      router.push("/admin");
     } catch (err) {
+      console.log(err);
       setErrorMsg("An unexpected error occurred. Please try again.");
     }
   };
@@ -98,7 +99,9 @@ export default function LoginPage() {
             />
           </div>
 
-          {errorMsg && <p className="text-red-400 whitespace-pre-line">{errorMsg}</p>}
+          {errorMsg && (
+            <p className="text-red-400 whitespace-pre-line">{errorMsg}</p>
+          )}
           {successMsg && <p className="text-green-400">{successMsg}</p>}
 
           <button
@@ -113,11 +116,10 @@ export default function LoginPage() {
 
         <div className="mt-4 text-center">
           <p className="text-sm">
-            Don't have an account?
+            Don&apos;t have an account?
             <button
               onClick={() => router.push("/register")}
               className="ml-1 underline hover:text-purple-500 transition"
-
             >
               Register
             </button>

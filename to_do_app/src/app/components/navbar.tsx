@@ -14,7 +14,7 @@ export default async function Navbar() {
     // Throws if no session, so we catch below
     session = await requireSession();
   } catch (error) {
-    // If there's no session, session stays null
+    console.log(error);
   }
 
   return (
