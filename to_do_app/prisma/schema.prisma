@@ -26,3 +26,16 @@ model Task {
   user_id     String
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
+
+model LoginAttempt {
+  id          String    @id @default(cuid())
+  username    String    
+  ip          String    
+  attempts    Int       @default(0) 
+  lastAttempt DateTime? 
+  lockedUntil DateTime? 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([username, ip])
+}
