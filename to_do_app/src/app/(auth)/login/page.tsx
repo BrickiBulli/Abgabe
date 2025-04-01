@@ -78,7 +78,7 @@ export default function LoginPage() {
       }
 
       setSuccessMsg("Login successful! Redirecting...");
-      router.push("/admin");
+      router.push("/");
     } catch (err) {
       console.log(err);
       setErrorMsg("An unexpected error occurred. Please try again.");
