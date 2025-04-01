@@ -306,7 +306,7 @@ export async function requireAdmin() {
 }
 ```
 
-For additional details on NextAuth.js and Prisma security features, I recommend looking at these documentation sources:
+For additional details on NextAuth.js and Prisma security features, We recommend looking at these documentation sources:
 
 1. NextAuth.js Documentation: <https://next-auth.js.org/>
 2. Prisma Security Guidelines: <https://www.prisma.io/docs/concepts/components/prisma-client/security>
